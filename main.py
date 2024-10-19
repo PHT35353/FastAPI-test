@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 # Add CORS Middleware to allow requests from different origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this to specific allowed origins if you want more security
+    allow_origins=["*"],  # Update this to specific allowed origins for more security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,6 +24,11 @@ class DistanceModel(BaseModel):
 
 # A global variable to hold the distance value
 distanceValue = None
+
+# Define a root endpoint to test server status
+@app.get("/")
+async def root():
+    return {"message": "FastAPI server is running."}
 
 # Define a route to receive the distance value
 @app.post("/send-distance/")
