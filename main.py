@@ -1,17 +1,38 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # Create a FastAPI app
 app = FastAPI()
 
+# Add CORS Middleware to allow requests from different origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update this to specific allowed origins if you want more security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Define the data model for receiving distance
 class DistanceModel(BaseModel):
     distance: float
 
+# A global variable to hold the distance value
+distanceValue = None
+
 # Define a route to receive the distance value
 @app.post("/send-distance/")
 async def send_distance(data: DistanceModel):
-    # Note: Streamlit session state is no longer accessible here.
-    # You'll need to store the distance in a backend database or in-memory dictionary if necessary.
+    global distanceValue
+    distanceValue = data.distance
     print(f"Received distance: {data.distance}")
     return {"status": "success"}
+
+# Define a route to get the distance value
+@app.get("/get-distance/")
+async def get_distance():
+    if distanceValue is not None:
+        return {"distance": distanceValue}
+    else:
+        return {"distance": None}
