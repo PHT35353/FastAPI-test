@@ -32,22 +32,29 @@ async def root():
     return {"message": "FastAPI server is running."}
 
 # Define a route to receive the distance value
-@app.post("/send-distance/")
-async def send_distance(data: DistanceModel):
+class DistancesModel(BaseModel):
+    distances: list[float]
+
+@app.post("/send-distances/")
+async def send_distances(data: DistancesModel):
     global distanceValue
-    distanceValue = data.distance
-    logging.info(f"Received distance: {data.distance}")
-    return {"status": "success"}
+    distanceValue = sum(data.distances)  # Keep total distance for convenience
+    logging.info(f"Received distances: {data.distances}, Total distance: {distanceValue}")
+    return {"status": "success", "total_distance": distanceValue, "individual_distances": data.distances}
+
 
 # Define a route to get the distance value
 @app.get("/get-distance/")
 async def get_distance():
-    if distanceValue is not None:
+    global distanceValue
+    if distanceValue is not None and distanceValue > 0:
         logging.info(f"Returning distance: {distanceValue}")
         return {"distance": distanceValue}
     else:
         logging.warning("Distance value is not set yet.")
+        distanceValue = None  # Reset distance if none
         return {"distance": None}
+
 
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
