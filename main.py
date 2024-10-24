@@ -39,7 +39,11 @@ async def send_distances(data: DistancesModel):
         logging.warning("Received empty distances. Ignoring.")
         return {"status": "error", "message": "No distances selected"}
     
+    distanceValues = data.distances  # Correctly assign new distances here
+    logging.info(f"Received distances: {distanceValues}")
+    
     return {"status": "success", "distances": distanceValues}
+
 
 # Define a route to get the distance values
 @app.get("/get-distances/")
