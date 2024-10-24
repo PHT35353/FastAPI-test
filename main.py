@@ -13,48 +13,41 @@ logging.basicConfig(level=logging.INFO)
 # Add CORS Middleware to allow requests from different origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this to specific allowed origins for more security
+    allow_origins=["*"],  # Allow requests from all origins for simplicity
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Define the data model for receiving distance
-class DistanceModel(BaseModel):
-    distance: float
+# Define the data model for receiving distances
+class DistancesModel(BaseModel):
+    distances: list[float]  # List of distances in meters
 
-# A global variable to hold the distance value
-distanceValue = None
+# Global variables to hold the distance values
+distanceValues = []
 
 # Define a root endpoint to test server status
 @app.get("/")
 async def root():
     return {"message": "FastAPI server is running."}
 
-# Define a route to receive the distance value
-class DistancesModel(BaseModel):
-    distances: list[float]
-
+# Define a route to receive the distance values
 @app.post("/send-distances/")
 async def send_distances(data: DistancesModel):
-    global distanceValue
-    distanceValue = sum(data.distances)  # Keep total distance for convenience
-    logging.info(f"Received distances: {data.distances}, Total distance: {distanceValue}")
-    return {"status": "success", "total_distance": distanceValue, "individual_distances": data.distances}
+    global distanceValues
+    distanceValues = data.distances  # Store all individual distances
+    logging.info(f"Received distances: {data.distances}")
+    return {"status": "success", "distances": distanceValues}
 
-
-# Define a route to get the distance value
-@app.get("/get-distance/")
-async def get_distance():
-    global distanceValue
-    if distanceValue is not None and distanceValue > 0:
-        logging.info(f"Returning distance: {distanceValue}")
-        return {"distance": distanceValue}
+# Define a route to get the distance values
+@app.get("/get-distances/")
+async def get_distances():
+    if distanceValues:
+        logging.info(f"Returning distances: {distanceValues}")
+        return {"individual_distances": distanceValues, "total_distance": sum(distanceValues)}
     else:
-        logging.warning("Distance value is not set yet.")
-        distanceValue = None  # Reset distance if none
-        return {"distance": None}
-
+        logging.warning("No distances have been set yet.")
+        return {"individual_distances": [], "total_distance": 0}
 
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
