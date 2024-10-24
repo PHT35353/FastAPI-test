@@ -35,8 +35,14 @@ async def root():
 @app.post("/send-distances/")
 async def send_distances(data: DistancesModel):
     global distanceValues
-    distanceValues = data.distances  # Store all individual distances
-    logging.info(f"Received distances: {data.distances}")
+    if len(data.distances) == 0:
+        logging.warning("Received empty distances. Ignoring.")
+        return {"status": "error", "message": "No distances selected"}
+    
+    # Store all individual distances and log them for debugging
+    distanceValues = data.distances
+    logging.info(f"Received and stored distances: {data.distances}")
+    
     return {"status": "success", "distances": distanceValues}
 
 # Define a route to get the distance values
