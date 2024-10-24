@@ -49,6 +49,7 @@ async def get_distances():
         logging.warning("No distances have been set yet.")
         return {"individual_distances": [], "total_distance": 0}
 
+
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
