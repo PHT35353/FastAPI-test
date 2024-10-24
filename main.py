@@ -31,21 +31,24 @@ distanceValues = []
 async def root():
     return {"message": "FastAPI server is running."}
 
-# Define a route to receive the distance values
+
+# Clear distanceValues on initialization or when no distances are sent
 @app.post("/send-distances/")
 async def send_distances(data: DistancesModel):
     global distanceValues
     if len(data.distances) == 0:
-        logging.warning("Received empty distances. Ignoring.")
+        # Clear saved distances if no distances are sent
+        distanceValues = []
+        logging.warning("Received empty distances. Ignoring and clearing previous distances.")
         return {"status": "error", "message": "No distances selected"}
     
-    distanceValues = data.distances  # Correctly assign new distances here
+    # Update with new distances
+    distanceValues = data.distances
     logging.info(f"Received distances: {distanceValues}")
     
     return {"status": "success", "distances": distanceValues}
 
-
-# Define a route to get the distance values
+# Route to get distances, will return empty if no distances are available
 @app.get("/get-distances/")
 async def get_distances():
     if distanceValues:
@@ -54,6 +57,7 @@ async def get_distances():
     else:
         logging.warning("No distances have been set yet.")
         return {"individual_distances": [], "total_distance": 0}
+
 
 
 # Run the FastAPI app on port 8000
