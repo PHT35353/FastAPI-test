@@ -11,6 +11,7 @@ class MapDataModel(BaseModel):
     user_id: str  # User ID to identify saved map data
     map_data: Dict  # JSON structure for the map's drawn features, including properties like color and name
 
+# Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
     pipes: List[PipeModel]  # List of pipes with names and distances
 
