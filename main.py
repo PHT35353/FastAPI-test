@@ -7,14 +7,14 @@ import json
 from pydantic import BaseModel
 from typing import List, Dict
 
-class MapDataModel(BaseModel):
-    user_id: str  # User ID to identify saved map data
-    map_data: Dict  # JSON structure for the map's drawn features, including properties like color and name
+# Define the PipeModel class to represent an individual pipe
+class PipeModel(BaseModel):
+    name: str
+    distance: float
 
 # Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
     pipes: List[PipeModel]  # List of pipes with names and distances
-
 
 # Create a FastAPI app
 app = FastAPI()
@@ -49,7 +49,6 @@ class MapDataModel(BaseModel):
 async def root():
     return {"message": "FastAPI server is running."}
 
-
 # Clear distanceValues on initialization or when no distances are sent
 @app.post("/send-pipes/")
 async def send_pipes(data: PipesModel):
@@ -77,8 +76,6 @@ async def get_distances():
         logging.warning("No pipes have been set yet.")
         return {"individual_pipes": [], "total_distance": 0}
 
-
-
 @app.post("/save-map/")
 async def save_map(data: MapDataModel):
     # Save the map data in an in-memory dictionary keyed by user_id
@@ -95,8 +92,6 @@ async def load_map(user_id: str):
     else:
         logging.warning(f"No saved map found for user_id: {user_id}")
         return {"status": "error", "message": "No saved map found for this user"}
-
-
 
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
