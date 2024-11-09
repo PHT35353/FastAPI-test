@@ -11,6 +11,10 @@ class MapDataModel(BaseModel):
     user_id: str  # User ID to identify saved map data
     map_data: Dict  # JSON structure for the map's drawn features, including properties like color and name
 
+class PipesModel(BaseModel):
+    pipes: List[PipeModel]  # List of pipes with names and distances
+
+
 # Create a FastAPI app
 app = FastAPI()
 
@@ -46,30 +50,32 @@ async def root():
 
 
 # Clear distanceValues on initialization or when no distances are sent
-@app.post("/send-distances/")
-async def send_distances(data: DistancesModel):
+@app.post("/send-pipes/")
+async def send_pipes(data: PipesModel):
     global distanceValues
-    if len(data.distances) == 0:
-        # Clear saved distances if no distances are sent
+    if len(data.pipes) == 0:
+        # Clear saved distances if no pipes are sent
         distanceValues = []
-        logging.warning("Received empty distances. Ignoring and clearing previous distances.")
-        return {"status": "error", "message": "No distances selected"}
-    
-    # Update with new distances
-    distanceValues = data.distances
-    logging.info(f"Received distances: {distanceValues}")
-    
-    return {"status": "success", "distances": distanceValues}
+        logging.warning("Received empty pipes list. Ignoring and clearing previous distances.")
+        return {"status": "error", "message": "No pipes selected"}
+
+    # Update with new pipes data
+    distanceValues = data.pipes
+    logging.info(f"Received pipes: {distanceValues}")
+
+    return {"status": "success", "pipes": distanceValues}
 
 # Route to get distances, will return empty if no distances are available
 @app.get("/get-distances/")
 async def get_distances():
     if distanceValues:
-        logging.info(f"Returning distances: {distanceValues}")
-        return {"individual_distances": distanceValues, "total_distance": sum(distanceValues)}
+        logging.info(f"Returning pipes: {distanceValues}")
+        total_distance = sum(pipe.distance for pipe in distanceValues)
+        return {"individual_pipes": distanceValues, "total_distance": total_distance}
     else:
-        logging.warning("No distances have been set yet.")
-        return {"individual_distances": [], "total_distance": 0}
+        logging.warning("No pipes have been set yet.")
+        return {"individual_pipes": [], "total_distance": 0}
+
 
 
 @app.post("/save-map/")
