@@ -4,6 +4,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json
+from pydantic import BaseModel
+from typing import List, Dict
+
+class MapDataModel(BaseModel):
+    user_id: str  # User ID to identify saved map data
+    map_data: Dict  # JSON structure for the map's drawn features, including properties like color and name
 
 # Create a FastAPI app
 app = FastAPI()
@@ -66,7 +72,6 @@ async def get_distances():
         return {"individual_distances": [], "total_distance": 0}
 
 
-# Route to save map data
 @app.post("/save-map/")
 async def save_map(data: MapDataModel):
     # Save the map data in an in-memory dictionary keyed by user_id
@@ -74,7 +79,6 @@ async def save_map(data: MapDataModel):
     logging.info(f"Map data saved for user_id: {data.user_id}")
     return {"status": "success", "message": "Map data saved successfully"}
 
-# Route to load saved map data
 @app.get("/load-map/{user_id}")
 async def load_map(user_id: str):
     # Retrieve the map data for the given user_id
@@ -84,6 +88,7 @@ async def load_map(user_id: str):
     else:
         logging.warning(f"No saved map found for user_id: {user_id}")
         return {"status": "error", "message": "No saved map found for this user"}
+
 
 
 # Run the FastAPI app on port 8000
