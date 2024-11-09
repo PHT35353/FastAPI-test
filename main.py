@@ -60,18 +60,17 @@ async def send_pipes(data: PipesModel):
         return {"status": "error", "message": "No pipes selected"}
 
     # Update with new pipes data
-    distanceValues = data.pipes
+    distanceValues = [{"name": pipe.name, "distance": pipe.distance} for pipe in data.pipes]
     logging.info(f"Received pipes: {distanceValues}")
 
     return {"status": "success", "pipes": distanceValues}
-
 
 # Route to get distances, will return empty if no distances are available
 @app.get("/get-distances/")
 async def get_distances():
     if distanceValues:
         logging.info(f"Returning pipes: {distanceValues}")
-        total_distance = sum(pipe.distance for pipe in distanceValues)
+        total_distance = sum(pipe["distance"] for pipe in distanceValues)
         return {"individual_pipes": distanceValues, "total_distance": total_distance}
     else:
         logging.warning("No pipes have been set yet.")
