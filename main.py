@@ -65,6 +65,7 @@ async def send_pipes(data: PipesModel):
 
     return {"status": "success", "pipes": distanceValues}
 
+
 # Route to get distances, will return empty if no distances are available
 @app.get("/get-distances/")
 async def get_distances():
