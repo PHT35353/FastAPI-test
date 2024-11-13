@@ -11,7 +11,8 @@ from typing import List, Dict
 class PipeModel(BaseModel):
     name: str
     distance: float
-
+    coordinates: List[List[float]]
+    
 # Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
     pipes: List[PipeModel]  # List of pipes with names and distances
@@ -54,13 +55,11 @@ async def root():
 async def send_pipes(data: PipesModel):
     global distanceValues
     if len(data.pipes) == 0:
-        # Clear saved distances if no pipes are sent
         distanceValues = []
         logging.warning("Received empty pipes list. Ignoring and clearing previous distances.")
         return {"status": "error", "message": "No pipes selected"}
 
-    # Update with new pipes data (now includes names)
-    distanceValues = [{"name": pipe.name, "distance": pipe.distance} for pipe in data.pipes]
+    distanceValues = [{"name": pipe.name, "distance": pipe.distance, "coordinates": pipe.coordinates} for pipe in data.pipes]
     logging.info(f"Received pipes: {distanceValues}")
 
     return {"status": "success", "pipes": distanceValues}
