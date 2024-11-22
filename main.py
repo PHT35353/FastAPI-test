@@ -16,6 +16,9 @@ class PipeModel(BaseModel):
 # Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
     pipes: List[PipeModel]  # List of pipes with names and distances
+    
+# Global variable to store landmarks
+landmarksData = []
 
 # Create a FastAPI app
 app = FastAPI()
@@ -94,6 +97,23 @@ async def load_map(user_id: str):
         logging.warning(f"No saved map found for user_id: {user_id}")
         return {"status": "error", "message": "No saved map found for this user"}
 
+
+@app.post("/send-landmarks/")
+async def send_landmarks(data: LandmarksModel):
+    global landmarksData
+    landmarksData = [{"name": lm.name, "color": lm.color, "coordinates": lm.coordinates} for lm in data.landmarks]
+    logging.info(f"Received landmarks: {landmarksData}")
+    return {"status": "success", "landmarks": landmarksData}
+
+@app.get("/get-landmarks/")
+async def get_landmarks():
+    if landmarksData:
+        logging.info(f"Returning landmarks: {landmarksData}")
+        return {"status": "success", "landmarks": landmarksData}
+    else:
+        logging.warning("No landmarks have been set yet.")
+        return {"status": "error", "landmarks": []}
+        
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
