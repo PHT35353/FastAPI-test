@@ -17,8 +17,29 @@ class PipeModel(BaseModel):
 class PipesModel(BaseModel):
     pipes: List[PipeModel]  # List of pipes with names and distances
     
+#Data model for receiving landmarks
+class LandmarkModel(BaseModel):
+    name: str
+    color: str
+    coordinates: List[float]  # Single point coordinates
+
+class LandmarksModel(BaseModel):
+    landmarks: List[LandmarkModel]  # List of landmarks
+
+# Define the data model for receiving distances
+class DistancesModel(BaseModel):
+    distances: list[float]  # List of distances in meters
+
+# Define a data model to hold map data
+class MapDataModel(BaseModel):
+    user_id: str  # You can use this to store map data for specific users
+    map_data: dict  # JSON structure for the map's drawn features
+
 # Global variable to store landmarks
 landmarksData = []
+# Global variables to hold the distance values and saved maps
+distanceValues = []
+saved_maps = {}
 
 # Create a FastAPI app
 app = FastAPI()
@@ -34,19 +55,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Global variables to hold the distance values and saved maps
-distanceValues = []
-saved_maps = {}
-
-# Define the data model for receiving distances
-class DistancesModel(BaseModel):
-    distances: list[float]  # List of distances in meters
-
-# Define a data model to hold map data
-class MapDataModel(BaseModel):
-    user_id: str  # You can use this to store map data for specific users
-    map_data: dict  # JSON structure for the map's drawn features
 
 # Define a root endpoint to test server status
 @app.get("/")
@@ -66,7 +74,6 @@ async def send_pipes(data: PipesModel):
     logging.info(f"Received pipes: {distanceValues}")
 
     return {"status": "success", "pipes": distanceValues}
-
 
 
 # Route to get distances, will return empty if no distances are available
