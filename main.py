@@ -3,6 +3,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import json
+from pydantic import BaseModel
 from typing import List, Dict
 
 # Define the PipeModel class to represent an individual pipe
@@ -15,7 +17,7 @@ class PipeModel(BaseModel):
 class PipesModel(BaseModel):
     pipes: List[PipeModel]  # List of pipes with names and distances
     
-# Data model for receiving landmarks
+#Data model for receiving landmarks
 class LandmarkModel(BaseModel):
     name: str
     color: str
@@ -26,15 +28,16 @@ class LandmarksModel(BaseModel):
 
 # Define the data model for receiving distances
 class DistancesModel(BaseModel):
-    distances: List[float]  # List of distances in meters
+    distances: list[float]  # List of distances in meters
 
 # Define a data model to hold map data
 class MapDataModel(BaseModel):
     user_id: str  # You can use this to store map data for specific users
     map_data: dict  # JSON structure for the map's drawn features
 
-# Global variables to hold data
+# Global variable to store landmarks
 landmarksData = []
+# Global variables to hold the distance values and saved maps
 distanceValues = []
 saved_maps = {}
 
@@ -53,12 +56,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root endpoint to test server status
+# Define a root endpoint to test server status
 @app.get("/")
 async def root():
     return {"message": "FastAPI server is running."}
 
-# Handle pipe data
+# Clear distanceValues on initialization or when no distances are sent
 @app.post("/send-pipes/")
 async def send_pipes(data: PipesModel):
     global distanceValues
@@ -72,6 +75,8 @@ async def send_pipes(data: PipesModel):
 
     return {"status": "success", "pipes": distanceValues}
 
+
+# Route to get distances, will return empty if no distances are available
 @app.get("/get-distances/")
 async def get_distances():
     if distanceValues:
@@ -82,24 +87,6 @@ async def get_distances():
         logging.warning("No pipes have been set yet.")
         return {"individual_pipes": [], "total_distance": 0}
 
-# Handle landmarks data
-@app.post("/send-landmarks/")
-async def send_landmarks(data: LandmarksModel):
-    global landmarksData
-    landmarksData = [{"name": lm.name, "color": lm.color, "coordinates": lm.coordinates} for lm in data.landmarks]
-    logging.info(f"Received landmarks: {landmarksData}")
-    return {"status": "success", "landmarks": landmarksData}
-
-@app.get("/get-landmarks/")
-async def get_landmarks():
-    if landmarksData:
-        logging.info(f"Returning landmarks: {landmarksData}")
-        return {"status": "success", "landmarks": landmarksData}
-    else:
-        logging.warning("No landmarks have been set yet.")
-        return {"status": "error", "landmarks": []}
-
-# Save and load map data
 @app.post("/save-map/")
 async def save_map(data: MapDataModel):
     # Save the map data in an in-memory dictionary keyed by user_id
@@ -117,6 +104,23 @@ async def load_map(user_id: str):
         logging.warning(f"No saved map found for user_id: {user_id}")
         return {"status": "error", "message": "No saved map found for this user"}
 
+
+@app.post("/send-landmarks/")
+async def send_landmarks(data: LandmarksModel):
+    global landmarksData
+    landmarksData = [{"name": lm.name, "color": lm.color, "coordinates": lm.coordinates} for lm in data.landmarks]
+    logging.info(f"Received landmarks: {landmarksData}")
+    return {"status": "success", "landmarks": landmarksData}
+
+@app.get("/get-landmarks/")
+async def get_landmarks():
+    if landmarksData:
+        logging.info(f"Returning landmarks: {landmarksData}")
+        return {"status": "success", "landmarks": landmarksData}
+    else:
+        logging.warning("No landmarks have been set yet.")
+        return {"status": "error", "landmarks": []}
+        
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
