@@ -12,6 +12,8 @@ class PipeModel(BaseModel):
     name: str
     distance: float
     coordinates: List[List[float]]
+    startLandmark: Dict[str, any]
+    endLandmark: Dict[str, any]
     
 # Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
