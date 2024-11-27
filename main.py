@@ -7,6 +7,10 @@ import json
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 
+class LandmarkDetails(BaseModel):
+    name: str
+    coordinates: List[float]
+    
 # Define the PipeModel class to represent an individual pipe
 class PipeModel(BaseModel):
     name: str
