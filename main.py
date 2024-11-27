@@ -75,8 +75,8 @@ async def send_pipes(data: PipesModel):
         "name": pipe.name,
         "distance": pipe.distance,
         "coordinates": pipe.coordinates,
-        "startLandmark": pipe.startLandmark,
-        "endLandmark": pipe.endLandmark
+        "startLandmark": pipe.startLandmark or "Not assigned",
+        "endLandmark": pipe.endLandmark or "Not assigned"
     } for pipe in data.pipes]
     logging.info(f"Received pipes: {distanceValues}")
 
