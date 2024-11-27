@@ -12,8 +12,8 @@ class PipeModel(BaseModel):
    name: str
    distance: float
    coordinates: List[List[float]]
-   startLandmark: Optional[str]  # Name of the starting landmark
-   endLandmark: Optional[str]    # Name of the ending landmark
+   startLandmark: Optional[str] = None  
+   endLandmark: Optional[str] = None   
     
 # Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
