@@ -5,19 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import json
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict
 
-class LandmarkDetails(BaseModel):
-    name: str
-    coordinates: List[float]
-    
 # Define the PipeModel class to represent an individual pipe
 class PipeModel(BaseModel):
     name: str
     distance: float
     coordinates: List[List[float]]
-    startLandmark: Optional[LandmarkDetails]  # Start landmark details
-    endLandmark: Optional[LandmarkDetails]    # End landmark details
     
 # Define the PipesModel class to represent a list of pipes
 class PipesModel(BaseModel):
@@ -75,17 +69,7 @@ async def send_pipes(data: PipesModel):
         logging.warning("Received empty pipes list. Ignoring and clearing previous distances.")
         return {"status": "error", "message": "No pipes selected"}
 
-    # Update global storage with pipe data
-    distanceValues = [
-        {
-            "name": pipe.name,
-            "distance": pipe.distance,
-            "coordinates": pipe.coordinates,
-            "startLandmark": pipe.startLandmark.dict(),
-            "endLandmark": pipe.endLandmark.dict(),
-        }
-        for pipe in data.pipes
-    ]
+    distanceValues = [{"name": pipe.name, "distance": pipe.distance, "coordinates": pipe.coordinates} for pipe in data.pipes]
     logging.info(f"Received pipes: {distanceValues}")
 
     return {"status": "success", "pipes": distanceValues}
@@ -99,7 +83,6 @@ async def get_distances():
     else:
         logging.warning("No pipes have been set yet.")
         return {"individual_pipes": [], "total_distance": 0}
-
 
 # Handle landmarks data
 @app.post("/send-landmarks/")
