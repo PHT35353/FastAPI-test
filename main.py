@@ -71,10 +71,8 @@ async def send_pipes(data: PipesModel):
 
     distanceValues = []
     for pipe in data.pipes:
-        start_landmark = next((lm for lm in landmarksData if lm["coordinates"] == pipe.coordinates[0]), {"name": "Unknown"})
-        end_landmark = next((lm for lm in landmarksData if lm["coordinates"] == pipe.coordinates[-1]), {"name": "Unknown"})
-
-        formatted_name = f"Line {pipe.name} belongs to {start_landmark['name']} - {end_landmark['name']}"
+        # Use the exact name sent from the frontend, no need to reformat here
+        formatted_name = pipe.name
 
         distanceValues.append({
             "name": formatted_name,
@@ -85,6 +83,7 @@ async def send_pipes(data: PipesModel):
     logging.info(f"Received pipes: {distanceValues}")
 
     return {"status": "success", "pipes": distanceValues}
+
 
 
 @app.get("/get-distances/")
