@@ -81,8 +81,8 @@ async def send_pipes(data: PipesModel):
             "name": pipe.name,
             "distance": pipe.distance,
             "coordinates": pipe.coordinates,
-            "startLandmark": pipe.startLandmark.dict() if pipe.startLandmark else None,
-            "endLandmark": pipe.endLandmark.dict() if pipe.endLandmark else None,
+            "startLandmark": pipe.startLandmark.dict(),
+            "endLandmark": pipe.endLandmark.dict(),
         }
         for pipe in data.pipes
     ]
