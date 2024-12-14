@@ -35,6 +35,9 @@ class MapDataModel(BaseModel):
     user_id: str  # You can use this to store map data for specific users
     map_data: dict  # JSON structure for the map's drawn features
 
+class DisplayMapDataModel(BaseModel):
+    pipes: List[PipeModel]
+    landmarks: List[LandmarkModel]
 # Global variables to hold data
 landmarksData = []
 distanceValues = []
@@ -130,6 +133,50 @@ async def load_map(user_id: str):
     else:
         logging.warning(f"No saved map found for user_id: {user_id}")
         return {"status": "error", "message": "No saved map found for this user"}
+
+@app.post("/send-display-data/")
+async def send_display_data(data: DisplayMapDataModel):
+    """
+    Receive pipes and landmarks and return them formatted for display on the map.
+    """
+    display_data = {
+        "pipes": [],
+        "landmarks": []
+    }
+    
+    # Process pipes
+    for pipe in data.pipes:
+        display_data["pipes"].append({
+            "name": pipe.name,
+            "distance": pipe.distance,
+            "coordinates": pipe.coordinates
+        })
+    
+    # Process landmarks
+    for landmark in data.landmarks:
+        display_data["landmarks"].append({
+            "name": landmark.name,
+            "color": landmark.color,
+            "coordinates": landmark.coordinates
+        })
+    
+    logging.info(f"Received display data: {display_data}")
+    return {"status": "success", "data": display_data}
+
+# Example GET endpoint for retrieving display data (if needed)
+@app.get("/get-display-data/")
+async def get_display_data():
+    """
+    Retrieve the latest pipes and landmarks for display.
+    """
+    if distanceValues or landmarksData:
+        return {
+            "status": "success",
+            "pipes": distanceValues,
+            "landmarks": landmarksData
+        }
+    else:
+        return {"status": "error", "message": "No display data available"}
 
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
