@@ -178,6 +178,17 @@ async def get_display_data():
     else:
         return {"status": "error", "message": "No display data available"}
 
+@app.get("/map-settings")
+async def get_map_settings():
+    """
+    Provide map settings to the frontend.
+    """
+    return {
+        "mapbox_access_token": "pk.eyJ1IjoicGFyc2ExMzgzIiwiYSI6ImNtMWRqZmZreDB6MHMyaXNianJpYWNhcGQifQ.hot5D26TtggHFx9IFM-9Vw",
+        "center_coordinates": [52.5200, 13.4050],  # Replace with desired default coordinates
+        "zoom_level": 13  # Default zoom level
+    }
+
 # Run the FastAPI app on port 8000
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
